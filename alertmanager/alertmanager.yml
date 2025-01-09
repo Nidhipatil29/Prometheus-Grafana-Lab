@@ -1,0 +1,25 @@
+
+route:
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 1m
+  repeat_interval: 1h
+  receiver: 'web.hook'
+
+receivers:
+  - name: 'web.hook'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/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'
+        channel: '# prometheus-monitor'  # Ensure this channel exists in Slack and starts with a '#'
+        send_resolved: true
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}'
+        title: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
+
+
